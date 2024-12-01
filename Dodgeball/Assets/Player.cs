@@ -26,6 +26,12 @@ public class Player : MonoBehaviour
     /// </summary>
     public float OrbVelocity = 10;
 
+    public Rigidbody2D RB;
+    //public Rigidbody2D RB;
+    // Start
+    private void Start() {
+        RB = GetComponent<Rigidbody2D>();
+    }
     /// <summary>
     /// Handle moving and firing.
     /// Called by Uniity every 1/50th of a second, regardless of the graphics card's frame rate
@@ -44,6 +50,14 @@ public class Player : MonoBehaviour
     void MaybeFire()
     {
         // TODO
+        if (Input.GetAxis("Fire") == 1)
+        {
+            for (int i=0; i<10; i++)
+            {
+                FireOrb();
+            }
+        }
+        //FireOrb().velocity = OrbVelocity * transform.right;
     }
 
     /// <summary>
@@ -54,6 +68,9 @@ public class Player : MonoBehaviour
     private void FireOrb()
     {
         // TODO
+        Vector2 orbPos = new (RB.position.x + transform.right.x, RB.position.y);
+        GameObject orbRB = Instantiate(OrbPrefab, orbPos, Quaternion.identity);
+        orbRB.GetComponent<Rigidbody2D>().velocity = OrbVelocity * transform.right;
     }
 
     /// <summary>
@@ -65,6 +82,18 @@ public class Player : MonoBehaviour
     void Manoeuvre()
     {
         // TODO
+        float HorizontalAxis = Input.GetAxis("Horizontal");
+        float VerticalAxis = Input.GetAxis("Vertical");
+
+        //Make new vector2() that points in the direction the player's joystick is pointing
+        // scale by Engine power, and apply that as a force to the RigidBody2D
+        Vector2 direction = new (HorizontalAxis * EnginePower, VerticalAxis * EnginePower);
+
+        RB.AddForce(direction);
+
+        // angularVelocity = Rotate axis x RotateSpeed
+        // -x * RotateSpeed
+        RB.angularVelocity = Input.GetAxis("Rotate") * RotateSpeed;
     }
 
     /// <summary>

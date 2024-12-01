@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Reflection.Emit;
 
 namespace Assets.Serialization
 {
@@ -190,28 +191,34 @@ namespace Assets.Serialization
             switch (o)
             {
                 case null:
-                    throw new NotImplementedException("Fill me in");
+                    //throw new NotImplementedException("Fill me in");
+                    Write("null");
                     break;
 
                 case int i:
-                    throw new NotImplementedException("Fill me in");
+                    //throw new NotImplementedException("Fill me in");
+                    Write(i);
                     break;
 
                 case float f:
-                    throw new NotImplementedException("Fill me in");
+                    //throw new NotImplementedException("Fill me in");
+                    Write(f);
                     break;
 
-                // Not: don't worry about handling strings that contain quote marks
+                // Note: don't worry about handling strings that contain quote marks
                 case string s:
-                    throw new NotImplementedException("Fill me in");
+                    //throw new NotImplementedException("Fill me in");
+                    Write($"\"{s}\"");
                     break;
 
                 case bool b:
-                    throw new NotImplementedException("Fill me in");
+                    //throw new NotImplementedException("Fill me in");
+                    Write(b);
                     break;
 
                 case IList list:
-                    throw new NotImplementedException("Fill me in");
+                    //throw new NotImplementedException("Fill me in");
+                    WriteList(list);
                     break;
 
                 default:
@@ -231,7 +238,43 @@ namespace Assets.Serialization
         /// <param name="o">Object to serialize</param>
         private void WriteComplexObject(object o)
         {
-            throw new NotImplementedException("Fill me in");
+            //assign the object a serial number
+            // and remember the serial num in a hash table (use Dictionary<object, int> data type
+            // if there alr serial num, do: write # followed by number.
+            // write {}s with the type and fields written inside, separated by commas
+            //GetId(o);
+            //WriteField("type", o, true);
+            //WriteField("MyField", o, false);
+
+            //itemFields = 
+            //string IDSection = "#" + GetId(o).id;
+            //WriteObject(o.ToString);
+
+            var (id, isNew) = GetId(o);
+
+            if (isNew == false)
+            {
+                string IDSection = "#" + id;
+                Write(IDSection);
+            }
+            else
+            {
+                Write("#" + id);
+                WriteBracketedExpression("{", () =>
+                {
+
+                    WriteField("type", o.GetType().Name, true);
+                    foreach (var field in Utilities.SerializedFields(o))
+                    {
+                        WriteField(field.Key, field.Value, false); 
+                    }
+          
+                }, //write bracketed expression
+                "}");
+
+            }
+
+
         }
     }
 }
